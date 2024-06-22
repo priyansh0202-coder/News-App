@@ -14,7 +14,7 @@ const NewsItem = ({ category, searchQuery }) => {
 
     useEffect(() => {
         // let key = import.meta.env.VITE_NEWS_API_KEY;
-        let url = `https://newsapi.org/v2/top-headlines?country=in&category=${category}&pageSize=100&apiKey=e9a947a395174904ae5d9e8662d757ae`;
+        let url = `http://newsapi.org/v2/top-headlines?country=in&category=${category}&pageSize=100&apiKey=e9a947a395174904ae5d9e8662d757ae`;
 
         const fetchArticles = async () => {
             try {

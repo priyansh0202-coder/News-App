@@ -1,5 +1,5 @@
 import { Favorite } from '@mui/icons-material';
-import { Box, Button, Card, CardActionArea, CardActions, CardContent, CardMedia, Grid, IconButton, Pagination, Typography } from '@mui/material';
+import { Box, Button, Card, CardActionArea, CardActions, CardContent, CardMedia, CircularProgress, Grid, IconButton, Pagination, Typography } from '@mui/material';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import Image from "../assets/newsapp.jpeg"
@@ -10,6 +10,7 @@ const NewsItem = ({ category, searchQuery }) => {
     const [fav, setFav] = useState(JSON.parse(localStorage.getItem('fav')) || [])
     const [currentPage, setCurrentPage] = useState(1);
     const recordPerPage = 12;
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         // let key = import.meta.env.VITE_NEWS_API_KEY;
@@ -17,16 +18,17 @@ const NewsItem = ({ category, searchQuery }) => {
 
         const fetchArticles = async () => {
             try {
+                setLoading(true)
                 const response = await axios.get(url);
                 setArticles(response.data.articles)
-
+                setLoading(false)
             } catch (error) {
                 console.log("error fetching the news articles:", error)
+                setLoading(false)
             }
         }
         fetchArticles();
     }, [category]);
-
 
 
     useEffect(() => {
@@ -53,49 +55,55 @@ const NewsItem = ({ category, searchQuery }) => {
         return fav.find(favItem => favItem.title === item.title);
     };
 
-
-
     return (
         <>
-            <Grid container spacing={2} padding={2} marginTop={5}>
-                {currentArticles.map((item, index) => (
-                    <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                        <Card sx={{ width: '100%', height: '100%', border: 2 }}>
-                            <CardActionArea>
-                                <CardMedia
-                                    component="img"
-                                    height="160"
-                                    image={item.urlToImage ? item.urlToImage : Image}
-                                    border={2}
-                                />
-                                <CardContent>
-                                    <Typography variant="h6" fontStyle="italic">{item.title.slice(0, 50)}</Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {item.description === null ? item.title : item.description.slice(0, 90)}
-                                    </Typography>
-                                </CardContent>
-                            </CardActionArea>
-                            <CardActions sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Button variant='contained' size="small" color="primary" href={item.url} target="_blank">
-                                    Read More
-                                </Button>
-                                <IconButton style={{ color: isFavorite(item) ? "red" : "inherit" }}
-                                    onClick={() => handleChange(item)} aria-label="add to favorites" >
-                                    <Favorite />
-                                </IconButton>
-                            </CardActions>
-                        </Card>
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                    <CircularProgress />
+                </Box>
+            ) : (
+                <>
+                    <Grid container spacing={2} padding={2} marginTop={5}>
+                        {currentArticles.map((item, index) => (
+                            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                                <Card sx={{ width: '100%', height: '100%', border: 2 }}>
+                                    <CardActionArea>
+                                        <CardMedia
+                                            component="img"
+                                            height="160"
+                                            image={item.urlToImage ? item.urlToImage : Image}
+                                            border={2}
+                                        />
+                                        <CardContent>
+                                            <Typography variant="h6" fontStyle="italic">{item.title.slice(0, 50)}</Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {item.description === null ? item.title : item.description.slice(0, 90)}
+                                            </Typography>
+                                        </CardContent>
+                                    </CardActionArea>
+                                    <CardActions sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <Button variant='contained' size="small" color="primary" href={item.url} target="_blank">
+                                            Read More
+                                        </Button>
+                                        <IconButton style={{ color: isFavorite(item) ? "red" : "inherit" }}
+                                            onClick={() => handleChange(item)} aria-label="add to favorites" >
+                                            <Favorite />
+                                        </IconButton>
+                                    </CardActions>
+                                </Card>
+                            </Grid>
+                        ))}
                     </Grid>
-                ))}
-            </Grid>
-            <Box sx={{ display: 'flex', justifyContent: "center", mt: 4 }}>
-                <Pagination
-                    count={Math.ceil(article.length / recordPerPage)}
-                    page={currentPage}
-                    onChange={handleChangePage}
-                    color='primary'
-                />
-            </Box>
+                    <Box sx={{ display: 'flex', justifyContent: "center", mt: 4 }}>
+                        <Pagination
+                            count={Math.ceil(article.length / recordPerPage)}
+                            page={currentPage}
+                            onChange={handleChangePage}
+                            color='primary'
+                        />
+                    </Box>
+                </>
+            )}
         </>
     )
 }

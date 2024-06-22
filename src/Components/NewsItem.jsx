@@ -19,15 +19,7 @@ const NewsItem = ({ category, searchQuery }) => {
         const fetchArticles = async () => {
             try {
                 setLoading(true)
-                const cors = require("cors")
-                const response = await axios.get(url, {
-                    transformRequest: [
-                        (data, headers) => {
-                            cors({ origin: true, credentials: true });
-                            return data
-                        },
-                    ],
-                });
+                const response = await axios.get(url)
                 setArticles(response.data.articles)
                 setLoading(false)
             } catch (error) {
